@@ -3,10 +3,7 @@ package it.zio_pagnotta.pixelblock.api;
 import it.zio_pagnotta.pixelblock.api.board.PixelBoard;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 
 public class PixelBlockAPI {
     private final Set<PixelBoard> pixelBoards;
@@ -19,8 +16,8 @@ public class PixelBlockAPI {
         return Collections.unmodifiableSet(pixelBoards);
     }
 
-    public void registerBoard(PixelBoard pixelBoard) {
-        pixelBoards.add(pixelBoard);
+    public void registerBoards(PixelBoard... pixelBoards) {
+        this.pixelBoards.addAll(List.of(pixelBoards));
     }
 
     public void unregisterBoard(String boardIdentifier) {
