@@ -1,6 +1,7 @@
 package it.zio_pagnotta.pixelblock.api.user;
 
 import it.zio_pagnotta.pixelblock.api.block.PixelBlock;
+import it.zio_pagnotta.pixelblock.api.board.PixelBoard;
 import org.checkerframework.checker.nullness.qual.Nullable;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
@@ -47,6 +48,11 @@ public final class PixelUserImpl implements PixelUser {
         }
 
         return Optional.empty();
+    }
+
+    @Override
+    public boolean canDrawPixel(PixelBlock pixelBlock, PixelBoard pixelBoard) {
+        return !pixelBlock.getMaterial().equals(pixelBoard.getDefaultMaterial()) && pixelBlock.getOwner() == null;
     }
 
     @Contract(value = "_ -> new", pure = true)

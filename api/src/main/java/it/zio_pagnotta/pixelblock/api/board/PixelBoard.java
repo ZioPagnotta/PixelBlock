@@ -15,6 +15,9 @@ public sealed interface PixelBoard permits PixelBoardImpl {
     int getEndX();
     int getEndY();
     int getEndZ();
+    boolean canDrawNonEmpty();
+
+    void setCanDrawNonEmpty(boolean bool);
 
     String getDefaultMaterial();
     ConcurrentMap<UUID, PixelUser> getUsers();
@@ -31,6 +34,7 @@ public sealed interface PixelBoard permits PixelBoardImpl {
         Builder endY(int endY);
         Builder endZ(int endZ);
         Builder defaultMaterial(String defaultMaterial);
+        Builder canDrawNonEmpty(boolean bool);
         Builder users(@Nullable ConcurrentMap<UUID, PixelUser> users);
 
         PixelBoard build();

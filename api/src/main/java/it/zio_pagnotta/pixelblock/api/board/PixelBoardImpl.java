@@ -13,9 +13,10 @@ import java.util.concurrent.ConcurrentMap;
 public final class PixelBoardImpl implements PixelBoard {
     private final int startX, startY, startZ, endX, endY, endZ;
     private final String identifier, defaultMaterial;
+    private boolean canDrawNonEmpty;
     private final ConcurrentMap<UUID, PixelUser> users;
 
-    private PixelBoardImpl(String identifier, int startX, int startY, int startZ, int endX, int endY, int endZ, String defaultMaterial, @Nullable ConcurrentMap<UUID, PixelUser> users) {
+    private PixelBoardImpl(String identifier, int startX, int startY, int startZ, int endX, int endY, int endZ, String defaultMaterial, boolean canDrawNonEmpty, @Nullable ConcurrentMap<UUID, PixelUser> users) {
         this.identifier = identifier;
         this.startX = startX;
         this.startY = startY;
@@ -24,6 +25,7 @@ public final class PixelBoardImpl implements PixelBoard {
         this.endY = endY;
         this.endZ = endZ;
         this.defaultMaterial = defaultMaterial;
+        this.canDrawNonEmpty = canDrawNonEmpty;
         this.users = users == null ? new ConcurrentHashMap<>() : users;
     }
 
@@ -65,6 +67,14 @@ public final class PixelBoardImpl implements PixelBoard {
         return defaultMaterial;
     }
 
+    @Override
+    public boolean canDrawNonEmpty() { return canDrawNonEmpty; }
+
+    @Override
+    public void setCanDrawNonEmpty(boolean bool) {
+        canDrawNonEmpty = bool;
+    }
+
     @Contract(" -> new")
     @Override
     public @NotNull ConcurrentMap<UUID, PixelUser> getUsers() {
@@ -86,15 +96,16 @@ public final class PixelBoardImpl implements PixelBoard {
         return Optional.ofNullable(users.getOrDefault(uuid, null));
     }
 
-    @Contract("_, _, _, _, _, _, _, _ -> new")
-    static @NotNull PixelBoard create(String identifier, int startX, int startY, int startZ, int endX, int endY, int endZ, String defaultMaterial, @Nullable ConcurrentMap<UUID, PixelUser> users) {
-        return new PixelBoardImpl(identifier, startX, startY, startZ, endX, endY, endZ, defaultMaterial, users);
+    @Contract("_, _, _, _, _, _, _, _, _, _ -> new")
+    static @NotNull PixelBoard create(String identifier, int startX, int startY, int startZ, int endX, int endY, int endZ, String defaultMaterial, boolean canDrawNonEmpty, @Nullable ConcurrentMap<UUID, PixelUser> users) {
+        return new PixelBoardImpl(identifier, startX, startY, startZ, endX, endY, endZ, defaultMaterial, canDrawNonEmpty, users);
     }
 
     static final class Builder implements PixelBoard.Builder {
         private final String identifier;
         private int startX, startY, startZ, endX, endY, endZ;
         private String defaultMaterial;
+        private boolean canDrawNonEmpty;
         private ConcurrentMap<UUID, PixelUser> users;
 
         Builder(String identifier) { this.identifier = identifier; }
@@ -142,6 +153,12 @@ public final class PixelBoardImpl implements PixelBoard {
         }
 
         @Override
+        public Builder canDrawNonEmpty(boolean bool) {
+            this.canDrawNonEmpty = bool;
+            return this;
+        }
+
+        @Override
         public Builder users(@Nullable ConcurrentMap<UUID, PixelUser> users) {
             this.users = users == null ? new ConcurrentHashMap<>() : users;
             return this;
@@ -150,7 +167,7 @@ public final class PixelBoardImpl implements PixelBoard {
         @Contract(" -> new")
         @Override
         public @NotNull PixelBoard build() {
-            return PixelBoardImpl.create(identifier, startX, startY, startZ, endX, endY, endZ, defaultMaterial, users);
+            return PixelBoardImpl.create(identifier, startX, startY, startZ, endX, endY, endZ, defaultMaterial, canDrawNonEmpty, users);
         }
     }
 }
