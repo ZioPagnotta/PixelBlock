@@ -2,9 +2,9 @@ package it.zio_pagnotta.pixelblock.api.user;
 
 import it.zio_pagnotta.pixelblock.api.block.PixelBlock;
 import it.zio_pagnotta.pixelblock.api.board.PixelBoard;
-import org.checkerframework.checker.nullness.qual.Nullable;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.UnmodifiableView;
 
 import java.util.ArrayList;

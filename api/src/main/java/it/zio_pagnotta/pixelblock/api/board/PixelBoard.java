@@ -1,7 +1,7 @@
 package it.zio_pagnotta.pixelblock.api.board;
 
 import it.zio_pagnotta.pixelblock.api.user.PixelUser;
-import org.checkerframework.checker.nullness.qual.Nullable;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Optional;
 import java.util.UUID;
@@ -25,6 +25,10 @@ public sealed interface PixelBoard permits PixelBoardImpl {
     void addUser(UUID uuid, PixelUser pixelUser);
     void removeUser(UUID uuid);
     Optional<PixelUser> getUser(UUID uuid);
+
+    static Builder builder(String identifier) {
+        return new PixelBoardImpl.Builder(identifier);
+    }
 
     sealed interface Builder permits PixelBoardImpl.Builder {
         Builder startX(int startX);

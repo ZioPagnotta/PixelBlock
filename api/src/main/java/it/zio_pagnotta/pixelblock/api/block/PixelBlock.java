@@ -11,6 +11,10 @@ public sealed interface PixelBlock permits PixelBlockImpl {
     int getY();
     int getZ();
 
+    static Builder builder(int x, int y, int z) {
+        return new PixelBlockImpl.Builder(x, y, z);
+    }
+
     sealed interface Builder permits PixelBlockImpl.Builder {
         Builder owner(String owner);
         Builder material(String material);

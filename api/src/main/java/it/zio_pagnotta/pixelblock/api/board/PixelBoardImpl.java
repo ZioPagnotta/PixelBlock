@@ -1,9 +1,9 @@
 package it.zio_pagnotta.pixelblock.api.board;
 
 import it.zio_pagnotta.pixelblock.api.user.PixelUser;
-import org.checkerframework.checker.nullness.qual.Nullable;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Optional;
 import java.util.UUID;
