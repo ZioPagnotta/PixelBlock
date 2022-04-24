@@ -1,7 +1,18 @@
 package it.zio_pagnotta.pixelblock.api.database;
 
 import com.glyart.mystral.database.AsyncDatabase;
+import it.zio_pagnotta.pixelblock.api.block.PixelBlock;
+import it.zio_pagnotta.pixelblock.api.board.PixelBoard;
 import it.zio_pagnotta.pixelblock.api.service.IService;
+import it.zio_pagnotta.pixelblock.api.user.PixelUser;
+
+import java.sql.ResultSet;
+import java.util.Arrays;
+import java.util.List;
+import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
+
+import static java.sql.Types.*;
 
 public class AsyncPixelBlockDAOImpl implements IService, IPixelBlockDAO {
     private final AsyncDatabase database;
@@ -18,7 +29,7 @@ public class AsyncPixelBlockDAOImpl implements IService, IPixelBlockDAO {
             ")", false);
 
         database.update("CREATE TABLE IF NOT EXISTS users_blocks (" +
-            "owner TEXT," +
+            "owner TEXT, " +
             "x INTEGER, " +
             "y INTEGER, " +
             "z INTEGER, " +
@@ -27,7 +38,7 @@ public class AsyncPixelBlockDAOImpl implements IService, IPixelBlockDAO {
             ")", false);
 
         database.update("CREATE TABLE IF NOT EXISTS boards (" +
-            "identifier TEXT," +
+            "identifier TEXT, " +
             "startX INTEGER, " +
             "startY INTEGER, " +
             "startZ INTEGER, " +
@@ -40,11 +51,46 @@ public class AsyncPixelBlockDAOImpl implements IService, IPixelBlockDAO {
             ")", false);
 
         database.update("CREATE TABLE IF NOT EXISTS users_boards (" +
-            "owner TEXT," +
-            "identifier TEXT," +
+            "owner TEXT, " +
+            "identifier TEXT, " +
             "FOREIGN KEY(identifier) REFERENCES boards(identifier) ON DELETE CASCADE" +
             ")", false);
 
         database.update("CREATE TABLE sqlite_sequence(name,seq)", false);
+    }
+
+    @Override
+    public CompletableFuture<Boolean> existUser(UUID uuid) {
+        return database.query("SELECT * FROM users WHERE uuid = ?", new Object[] {uuid.toString()}, ResultSet::isBeforeFirst, VARCHAR);
+    }
+
+    @Override
+    public CompletableFuture<Boolean> existBoard(String identifier) {
+        return database.query("SELECT * FROM boards WHERE identifier = ?", new Object[] {identifier}, ResultSet::isBeforeFirst, VARCHAR);
+    }
+
+    @Override
+    public CompletableFuture<PixelUser> fetchUser(UUID uuid) {
+        return database.queryForObject("SELECT * FROM users_blocks WHERE owner = ?", new Object[] {uuid.toString()}, (rs, i) -> PixelUser.builder()
+            .pixelBlocks(List.of(PixelBlock.builder(rs.getInt("x"), rs.getInt("y"), rs.getInt("z"))
+                .material(rs.getString("material"))
+                .owner(rs.getString("owner"))
+                .build()))
+            .build(), VARCHAR);
+    }
+
+    @Override
+    public CompletableFuture<PixelBoard> fetchBoard(String identifier) {
+        return database.queryForObject("SELECT * FROM boards WHERE identifier = ?", new Object[] {identifier}, (rs, i) -> PixelBoard.builder(rs.getString("identifier"))
+                .startX(rs.getInt("startX"))
+                .startY(rs.getInt("startY"))
+                .startZ(rs.getInt("startZ"))
+                .endX(rs.getInt("endX"))
+                .endY(rs.getInt("endY"))
+                .endZ(rs.getInt("endZ"))
+                .defaultMaterial(rs.getString("default_material"))
+                .canDrawNonEmpty(rs.getBoolean("can_draw_non_empty"))
+                .users(null)
+            .build(), VARCHAR);
     }
 }

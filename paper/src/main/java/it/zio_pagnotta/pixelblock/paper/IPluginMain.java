@@ -1,6 +1,7 @@
 package it.zio_pagnotta.pixelblock.paper;
 
 import it.zio_pagnotta.pixelblock.api.PixelBlockAPI;
+import it.zio_pagnotta.pixelblock.api.database.IPixelBlockDAO;
 
 public interface IPluginMain {
     default void onEnable() throws RuntimeException {}
@@ -8,4 +9,5 @@ public interface IPluginMain {
 
     PluginMain getLoader();
     PixelBlockAPI getAPI();
+    IPixelBlockDAO getDatabase();
 }

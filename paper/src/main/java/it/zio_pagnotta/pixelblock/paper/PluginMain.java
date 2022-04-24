@@ -3,7 +3,6 @@ package it.zio_pagnotta.pixelblock.paper;
 import org.bukkit.plugin.java.JavaPlugin;
 
 public class PluginMain extends JavaPlugin {
-
     private IPluginMain pluginMain;
 
     @Override
