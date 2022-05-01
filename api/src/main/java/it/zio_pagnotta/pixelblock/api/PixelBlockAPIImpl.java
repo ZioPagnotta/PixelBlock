@@ -1,6 +1,7 @@
 package it.zio_pagnotta.pixelblock.api;
 
 import it.zio_pagnotta.pixelblock.api.board.PixelBoard;
+import it.zio_pagnotta.pixelblock.api.magicwand.Wand;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -10,15 +11,23 @@ import java.util.*;
 
 public final class PixelBlockAPIImpl implements PixelBlockAPI {
     private final Set<PixelBoard> pixelBoards;
+    private final Map<UUID, Wand> userWands;
 
     private PixelBlockAPIImpl(@Nullable Set<PixelBoard> pixelBoards) {
         this.pixelBoards = pixelBoards == null ? new HashSet<>() : pixelBoards;
+        this.userWands = new HashMap<>();
     }
 
     @Contract(pure = true)
     @Override
     public @NotNull @UnmodifiableView Set<PixelBoard> getPixelBoards() {
         return Collections.unmodifiableSet(pixelBoards);
+    }
+
+    @Contract(pure = true)
+    @Override
+    public @NotNull @UnmodifiableView Map<UUID, Wand> getUserWands() {
+        return Collections.unmodifiableMap(userWands);
     }
 
     @Override
@@ -32,6 +41,16 @@ public final class PixelBlockAPIImpl implements PixelBlockAPI {
     }
 
     @Override
+    public void addUserWand(UUID uuid, Wand wand) {
+        userWands.putIfAbsent(uuid, wand);
+    }
+
+    @Override
+    public void removeUserWand(UUID uuid) {
+        userWands.remove(uuid);
+    }
+
+    @Override
     public Optional<PixelBoard> getByIdentifier(String boardIdentifier) {
         for(PixelBoard pixelBoard : getPixelBoards()) {
             if(pixelBoard.getIdentifier().equals(boardIdentifier)) {
@@ -40,6 +59,11 @@ public final class PixelBlockAPIImpl implements PixelBlockAPI {
         }
 
         return Optional.empty();
+    }
+
+    @Override
+    public Optional<Wand> getByUser(UUID uuid) {
+        return Optional.ofNullable(getUserWands().getOrDefault(uuid, null));
     }
 
     @Contract(value = "_ -> new", pure = true)

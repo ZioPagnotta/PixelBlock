@@ -6,8 +6,10 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 public sealed interface PixelUser permits PixelUserImpl {
+    UUID getUUID();
     List<PixelBlock> getPixelBlocks();
     boolean canDrawPixel(PixelBlock pixelBlock, PixelBoard pixelBoard);
 
@@ -20,6 +22,7 @@ public sealed interface PixelUser permits PixelUserImpl {
     }
 
     sealed interface Builder permits PixelUserImpl.Builder {
+        Builder player(UUID uuid);
         Builder pixelBlocks(@Nullable List<PixelBlock> pixelBlocks);
         PixelUser build();
     }

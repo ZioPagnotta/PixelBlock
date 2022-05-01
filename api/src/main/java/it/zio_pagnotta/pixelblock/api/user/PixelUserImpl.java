@@ -7,16 +7,20 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.UnmodifiableView;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 public final class PixelUserImpl implements PixelUser {
+    private final UUID uuid;
     private final List<PixelBlock> pixelBlocks;
 
-    private PixelUserImpl(@Nullable List<PixelBlock> pixelBlocks) {
+    private PixelUserImpl(UUID uuid, @Nullable List<PixelBlock> pixelBlocks) {
+        this.uuid = uuid;
         this.pixelBlocks = pixelBlocks == null ? new ArrayList<>() : pixelBlocks;
+    }
+
+    @Override
+    public UUID getUUID() {
+        return uuid;
     }
 
     @Contract(pure = true)
@@ -51,19 +55,24 @@ public final class PixelUserImpl implements PixelUser {
     }
 
     @Override
-    public boolean canDrawPixel(PixelBlock pixelBlock, PixelBoard pixelBoard) {
+    public boolean canDrawPixel(@NotNull PixelBlock pixelBlock, @NotNull PixelBoard pixelBoard) {
         return !pixelBlock.getMaterial().equals(pixelBoard.getDefaultMaterial()) && pixelBlock.getOwner() == null;
     }
 
-    @Contract(value = "_ -> new", pure = true)
-    static @NotNull PixelUser create(@Nullable List<PixelBlock> pixelBlocks) {
-        return new PixelUserImpl(pixelBlocks);
+    @Contract(value = "_, _ -> new", pure = true)
+    static @NotNull PixelUser create(UUID uuid, @Nullable List<PixelBlock> pixelBlocks) {
+        return new PixelUserImpl(uuid, pixelBlocks);
     }
 
     static final class Builder implements PixelUser.Builder {
+        UUID uuid;
         List<PixelBlock> pixelBlocks;
 
-        Builder() {}
+        @Override
+        public Builder player(UUID uuid) {
+            this.uuid = uuid;
+            return this;
+        }
 
         @Override
         public Builder pixelBlocks(@Nullable List<PixelBlock> pixelBlocks) {
@@ -74,7 +83,7 @@ public final class PixelUserImpl implements PixelUser {
         @Contract(value = " -> new", pure = true)
         @Override
         public @NotNull PixelUser build() {
-            return PixelUserImpl.create(pixelBlocks);
+            return PixelUserImpl.create(uuid, pixelBlocks);
         }
     }
 }

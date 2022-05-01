@@ -5,6 +5,7 @@ import it.zio_pagnotta.pixelblock.api.block.PixelBlock;
 import it.zio_pagnotta.pixelblock.api.board.PixelBoard;
 import it.zio_pagnotta.pixelblock.api.service.IService;
 import it.zio_pagnotta.pixelblock.api.user.PixelUser;
+import org.jetbrains.annotations.NotNull;
 
 import java.sql.ResultSet;
 import java.util.Arrays;
@@ -30,6 +31,7 @@ public class AsyncPixelBlockDAOImpl implements IService, IPixelBlockDAO {
 
         database.update("CREATE TABLE IF NOT EXISTS users_blocks (" +
             "owner TEXT, " +
+            "board TEXT, " +
             "x INTEGER, " +
             "y INTEGER, " +
             "z INTEGER, " +
@@ -60,7 +62,7 @@ public class AsyncPixelBlockDAOImpl implements IService, IPixelBlockDAO {
     }
 
     @Override
-    public CompletableFuture<Boolean> existUser(UUID uuid) {
+    public CompletableFuture<Boolean> existUser(@NotNull UUID uuid) {
         return database.query("SELECT * FROM users WHERE uuid = ?", new Object[] {uuid.toString()}, ResultSet::isBeforeFirst, VARCHAR);
     }
 
@@ -70,13 +72,24 @@ public class AsyncPixelBlockDAOImpl implements IService, IPixelBlockDAO {
     }
 
     @Override
-    public CompletableFuture<PixelUser> fetchUser(UUID uuid) {
+    public CompletableFuture<PixelUser> fetchUser(@NotNull UUID uuid) {
         return database.queryForObject("SELECT * FROM users_blocks WHERE owner = ?", new Object[] {uuid.toString()}, (rs, i) -> PixelUser.builder()
-            .pixelBlocks(List.of(PixelBlock.builder(rs.getInt("x"), rs.getInt("y"), rs.getInt("z"))
-                .material(rs.getString("material"))
-                .owner(rs.getString("owner"))
-                .build()))
+            .pixelBlocks(List.of(PixelBlock.builder(rs.getString("board"), rs.getInt("x"), rs.getInt("y"), rs.getInt("z"))
+                    .material(rs.getString("material"))
+                    .owner(UUID.fromString(rs.getString("owner")))
+                    .build()))
             .build(), VARCHAR);
+    }
+
+    @Override
+    public CompletableFuture<List<PixelUser>> fetchAllUsers(String pixelBoard) {
+        return database.queryForList("SELECT * FROM users_blocks WHERE board = ?", new Object[] {pixelBoard}, (rs, i) -> PixelUser.builder()
+                .player(UUID.fromString(rs.getString("owner")))
+                .pixelBlocks(List.of(PixelBlock.builder(rs.getString("board"), rs.getInt("x"), rs.getInt("y"), rs.getInt("z"))
+                        .material(rs.getString("material"))
+                        .owner(UUID.fromString(rs.getString("owner")))
+                        .build()))
+                .build(), VARCHAR);
     }
 
     @Override
@@ -91,6 +104,22 @@ public class AsyncPixelBlockDAOImpl implements IService, IPixelBlockDAO {
                 .defaultMaterial(rs.getString("default_material"))
                 .canDrawNonEmpty(rs.getBoolean("can_draw_non_empty"))
                 .users(null)
-            .build(), VARCHAR);
+                .build(), VARCHAR);
+    }
+
+    @Override
+    public CompletableFuture<List<PixelBoard>> fetchAllBoards() {
+        return database.queryForList("SELECT * FROM boards", new Object[]{}, (rs, i) -> PixelBoard.builder(rs.getString("identifier"))
+                .startX(rs.getInt("startX"))
+                .startY(rs.getInt("startY"))
+                .startZ(rs.getInt("startZ"))
+                .endX(rs.getInt("endX"))
+                .endY(rs.getInt("endY"))
+                .endZ(rs.getInt("endZ"))
+                .defaultMaterial(rs.getString("default_material"))
+                .canDrawNonEmpty(rs.getBoolean("can_draw_non_empty"))
+                .users(null)
+                .build()
+        );
     }
 }
